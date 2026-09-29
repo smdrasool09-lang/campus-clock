@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>College Timetable Management System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ TOAST / NOTIFICATIONS ============ -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ============ LANDING PAGE ============ -->
+<section id="landingPage" class="landing">
+  <div class="landing-topbar">
+    <div class="brand"><span class="brand-icon">&#128197;</span> Joy University</div>
+  </div>
+  <div class="landing-hero">
+    <h1>COLLEGE TIMETABLE<br>MANAGEMENT SYSTEM</h1>
+    <p class="subtitle">Smart and Centralized Academic Timetable Management</p>
+    <div class="role-cards">
+      <div class="role-card" data-role="Student">
+        <div class="role-icon">&#127891;</div>
+        <h3>Student</h3>
+        <p>View your class schedule, today's classes and subject details.</p>
+        <button class="btn btn-primary role-enter">Continue as Student</button>
+      </div>
+      <div class="role-card" data-role="Faculty">
+        <div class="role-icon">&#128100;</div>
+        <h3>Faculty</h3>
+        <p>View your teaching schedule, assigned sections and rooms.</p>
+        <button class="btn btn-primary role-enter">Continue as Faculty</button>
+      </div>
+      <div class="role-card" data-role="Admin">
+        <div class="role-icon">&#9881;&#65039;</div>
+        <h3>Admin</h3>
+        <p>Manage timetables, sections, faculty, rooms and reports.</p>
+        <button class="btn btn-primary role-enter">Continue as Admin</button>
+      </div>
+    </div>
+  </div>
+  <footer class="landing-footer">Joy University &middot; School of Computational Intelligence &middot; Academic Year 2026-27</footer>
+</section>
+
+<!-- ============ LOGIN MODAL ============ -->
+<div id="loginModal" class="modal-overlay hidden">
+  <div class="modal login-modal">
+    <button class="modal-close" id="closeLoginModal">&times;</button>
+    <h2 id="loginModalTitle">Sign In</h2>
+    <p class="modal-subtitle">Role: <span id="loginRoleLabel">Student</span></p>
+
+    <!-- Student only: switch between Login and Create Password -->
+    <div id="studentAuthTabs" class="auth-tabs hidden">
+      <button type="button" class="auth-tab active" data-tab="login">Login</button>
+      <button type="button" class="auth-tab" data-tab="signup">Create Password</button>
+    </div>
+
+    <!-- LOGIN form (Student / Faculty / Admin) -->
+    <form id="loginForm">
+      <label id="loginIdentifierLabel"><span id="loginIdentifierLabelText">College Email</span>
+        <input type="text" id="loginUsername" placeholder="student@joyuniversity.edu.in" required autocomplete="username" />
+      </label>
+      <label>Password
+        <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password" />
+      </label>
+      <p id="loginError" class="form-error hidden"></p>
+      <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">Login</button>
+    </form>
+
+    <!-- CREATE PASSWORD form (Student only) -->
+    <form id="studentSignupForm" class="hidden">
+      <label>College Email
+        <input type="email" id="signupEmail" placeholder="student@joyuniversity.edu.in" required autocomplete="username" />
+      </label>
+      <label>Full Name
+        <input type="text" id="signupName" placeholder="Your full name" required autocomplete="name" />
+      </label>
+      <label>Create Password
+        <input type="password" id="signupPassword" placeholder="Minimum 8 characters, incl. a letter and a number" required minlength="8" autocomplete="new-password" />
+      </label>
+      <label>Confirm Password
+        <input type="password" id="signupPasswordConfirm" placeholder="Re-enter password" required minlength="8" autocomplete="new-password" />
+      </label>
+      <p id="signupError" class="form-error hidden"></p>
+      <button type="submit" class="btn btn-primary btn-block">Create Password</button>
+    </form>
+
+    <p class="login-hint" id="loginHint"></p>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="appShell" class="app-shell hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">&#128197;</span>
+      <span class="brand-text">CTMS</span>
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+    </div>
+    <nav id="sidebarNav" class="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">S</div>
+        <div class="user-info">
+          <div id="userName" class="user-name">Guest</div>
+          <div id="userRole" class="user-role-tag">Student</div>
+        </div>
+      </div>
+      <button id="logoutBtn" class="btn btn-outline btn-block">Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <button id="mobileSidebarToggle" class="mobile-sidebar-toggle">&#9776;</button>
+      <div class="topbar-search">
+        <input type="text" id="globalSearchInput" placeholder="Search section, subject, faculty, room, day, time..." />
+        <div id="globalSearchResults" class="search-results hidden"></div>
+      </div>
+      <div class="topbar-right">
+        <span id="topbarClock" class="topbar-clock"></span>
+      </div>
+    </header>
+
+    <main id="pageContent" class="page-content">
+      <!-- Rendered dynamically by script.js -->
+    </main>
+  </div>
+</div>
+
+<!-- ============ TIMETABLE ENTRY MODAL (ADMIN ADD/EDIT) ============ -->
+<div id="entryModal" class="modal-overlay hidden">
+  <div class="modal entry-modal">
+    <button class="modal-close" id="closeEntryModal">&times;</button>
+    <h2 id="entryModalTitle">Add Timetable Entry</h2>
+    <form id="entryForm">
+      <input type="hidden" id="entryId" />
+      <div class="form-grid">
+        <label>Section
+          <select id="entrySection" required></select>
+        </label>
+        <label>Day
+          <select id="entryDay" required>
+            <option value="MON">Monday</option>
+            <option value="TUE">Tuesday</option>
+            <option value="WED">Wednesday</option>
+            <option value="THU">Thursday</option>
+            <option value="FRI">Friday</option>
+          </select>
+        </label>
+        <label>Period
+          <select id="entryPeriod" required></select>
+        </label>
+        <label>Type
+          <select id="entryType" required>
+            <option value="Theory">Theory</option>
+            <option value="Lab">Lab</option>
+          </select>
+        </label>
+        <label>Course Code
+          <input type="text" id="entryCourseCode" placeholder="e.g. 24BTAM151" required />
+        </label>
+        <label>Subject
+          <input type="text" id="entrySubject" placeholder="Subject name" required />
+        </label>
+        <label>Faculty
+          <input type="text" id="entryFaculty" placeholder="Faculty name" required />
+        </label>
+        <label>Room / Lab
+          <input type="text" id="entryRoom" placeholder="Room number or lab name" required />
+        </label>
+      </div>
+      <div id="conflictWarning" class="conflict-warning hidden"></div>
+      <div class="modal-actions">
+        <button type="button" id="cancelEntryBtn" class="btn btn-outline">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ CONFIRM DIALOG ============ -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal confirm-modal">
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button id="confirmCancelBtn" class="btn btn-outline">Cancel</button>
+      <button id="confirmOkBtn" class="btn btn-danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="auth.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
